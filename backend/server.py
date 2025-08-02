@@ -161,37 +161,45 @@ async def init_default_data():
         # Create default users
         default_users = [
             {
+                "id": str(uuid.uuid4()),
                 "username": "bruce.wayne",
                 "email": "bruce@wayneindustries.com",
                 "full_name": "Bruce Wayne",
                 "password": hash_password("batman123"),
                 "role": "security_admin",
                 "department": "Executive",
-                "access_level": 3
+                "access_level": 3,
+                "is_active": True,
+                "created_at": datetime.utcnow()
             },
             {
+                "id": str(uuid.uuid4()),
                 "username": "lucius.fox",
                 "email": "lucius@wayneindustries.com", 
                 "full_name": "Lucius Fox",
                 "password": hash_password("foxtech123"),
                 "role": "manager",
                 "department": "R&D",
-                "access_level": 2
+                "access_level": 2,
+                "is_active": True,
+                "created_at": datetime.utcnow()
             },
             {
+                "id": str(uuid.uuid4()),
                 "username": "alfred.pennyworth",
                 "email": "alfred@wayneindustries.com",
                 "full_name": "Alfred Pennyworth",
                 "password": hash_password("alfred123"),
                 "role": "employee",
                 "department": "Security",
-                "access_level": 1
+                "access_level": 1,
+                "is_active": True,
+                "created_at": datetime.utcnow()
             }
         ]
         
         for user_data in default_users:
-            user = User(**user_data)
-            await db.users.insert_one(user.dict())
+            await db.users.insert_one(user_data)
         
         # Create default resources
         default_resources = [
