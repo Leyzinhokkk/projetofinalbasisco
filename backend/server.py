@@ -474,19 +474,21 @@ async def get_access_logs(current_user: User = Depends(get_current_user)):
     if current_user.access_level < 2:  # Manager level or above
         raise HTTPException(status_code=403, detail="Insufficient permissions")
     
-    logs = await db.access_logs.find().sort("timestamp", -1).limit(100).to_list(100)
+    logs = await db.access_logs.find({}, {"_id": 0}).sort("timestamp", -1).limit(100).to_list(100)
     return [AccessLog(**log) for log in logs]
 
 @api_router.post("/access-logs", response_model=AccessLog)
 async def create_access_log(log_data: AccessLogCreate, current_user: User = Depends(get_current_user)):
-    log = AccessLog(**log_data.dict())
-    await db.access_logs.insert_one(log.dict())
-    return log
+    log_dict = log_data.dict()
+    log_dict["id"] = str(uuid.uuid4())
+    log_dict["timestamp"] = datetime.utcnow()
+    await db.access_logs.insert_one(log_dict)
+    return AccessLog(**log_dict)
 
 # Security alerts routes
 @api_router.get("/security-alerts", response_model=List[SecurityAlert])
 async def get_security_alerts(current_user: User = Depends(get_current_user)):
-    alerts = await db.security_alerts.find().sort("created_at", -1).limit(50).to_list(50)
+    alerts = await db.security_alerts.find({}, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
     return [SecurityAlert(**alert) for alert in alerts]
 
 @api_router.post("/security-alerts", response_model=SecurityAlert)
