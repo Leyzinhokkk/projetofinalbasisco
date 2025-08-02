@@ -263,8 +263,8 @@ async def init_default_data():
         ]
         
         for log_data in sample_logs:
-            log = AccessLog(**log_data)
-            await db.access_logs.insert_one(log.dict())
+            log_data["id"] = str(uuid.uuid4())
+            await db.access_logs.insert_one(log_data)
         
         # Create sample security alerts
         sample_alerts = [
