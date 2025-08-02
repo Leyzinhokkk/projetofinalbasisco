@@ -238,8 +238,9 @@ async def init_default_data():
         ]
         
         for resource_data in default_resources:
-            resource = Resource(**resource_data)
-            await db.resources.insert_one(resource.dict())
+            resource_data["id"] = str(uuid.uuid4())
+            resource_data["created_at"] = datetime.utcnow()
+            await db.resources.insert_one(resource_data)
         
         # Create sample access logs
         sample_logs = [
