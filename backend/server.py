@@ -351,13 +351,13 @@ async def get_users(current_user: User = Depends(get_current_user)):
     if current_user.access_level < 2:  # Manager level or above
         raise HTTPException(status_code=403, detail="Insufficient permissions")
     
-    users = await db.users.find({}, {"password": 0}).to_list(100)
+    users = await db.users.find({}, {"_id": 0, "password": 0}).to_list(100)
     return [User(**user) for user in users]
 
 # Resource routes
 @api_router.get("/resources", response_model=List[Resource])
 async def get_resources(current_user: User = Depends(get_current_user)):
-    resources = await db.resources.find().to_list(1000)
+    resources = await db.resources.find({}, {"_id": 0}).to_list(1000)
     return [Resource(**resource) for resource in resources]
 
 @api_router.post("/resources", response_model=Resource)
