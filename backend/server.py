@@ -285,8 +285,9 @@ async def init_default_data():
         ]
         
         for alert_data in sample_alerts:
-            alert = SecurityAlert(**alert_data)
-            await db.security_alerts.insert_one(alert.dict())
+            alert_data["id"] = str(uuid.uuid4())
+            alert_data["created_at"] = datetime.utcnow()
+            await db.security_alerts.insert_one(alert_data)
 
 # Authentication routes
 @api_router.post("/auth/login", response_model=Token)
