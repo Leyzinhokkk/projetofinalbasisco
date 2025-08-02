@@ -292,7 +292,7 @@ async def init_default_data():
 # Authentication routes
 @api_router.post("/auth/login", response_model=Token)
 async def login(login_data: UserLogin):
-    user = await db.users.find_one({"username": login_data.username})
+    user = await db.users.find_one({"username": login_data.username}, {"_id": 0})
     if not user or not verify_password(login_data.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
@@ -302,14 +302,16 @@ async def login(login_data: UserLogin):
     access_token = create_access_token(data={"sub": user["username"]})
     
     # Create access log
-    access_log = AccessLog(
-        user_id=user["username"],
-        user_name=user["full_name"],
-        action="System Login",
-        location="Wayne Industries Portal",
-        status="success"
-    )
-    await db.access_logs.insert_one(access_log.dict())
+    access_log = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["username"],
+        "user_name": user["full_name"],
+        "action": "System Login",
+        "location": "Wayne Industries Portal",
+        "status": "success",
+        "timestamp": datetime.utcnow()
+    }
+    await db.access_logs.insert_one(access_log)
     
     user_response = {k: v for k, v in user.items() if k != "password"}
     
