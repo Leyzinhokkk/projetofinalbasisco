@@ -448,10 +448,12 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     active_alerts = await db.security_alerts.count_documents({"status": "active"})
     
     # Get recent access logs
-    recent_access = await db.access_logs.find().sort("timestamp", -1).limit(5).to_list(5)
+    recent_access_cursor = db.access_logs.find({}, {"_id": 0}).sort("timestamp", -1).limit(5)
+    recent_access = await recent_access_cursor.to_list(5)
     
     # Get active alerts
-    alerts = await db.security_alerts.find({"status": {"$in": ["active", "investigating"]}}).limit(10).to_list(10)
+    alerts_cursor = db.security_alerts.find({"status": {"$in": ["active", "investigating"]}}, {"_id": 0}).limit(10)
+    alerts = await alerts_cursor.to_list(10)
     
     return {
         "stats": {
